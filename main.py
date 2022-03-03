@@ -1,8 +1,6 @@
 import readFile
-# import insertSQL
-
-import readFile
 import setDir
+import rx
 
 # ===============================================
 # 定数定義
@@ -26,7 +24,7 @@ def main():
     print(df)
 
     # 処方情報分割
-
+    r = rx.ProcRx(df)
 
 
 if __name__ == '__main__':

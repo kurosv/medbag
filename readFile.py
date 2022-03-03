@@ -16,7 +16,7 @@ class ReadFile:
         self.dir_name = path
         self.filepath = None
         # 読み込みデータ保持(list)
-        self.file_df_lst = []
+        self.file_df = None
 
     # ================================================
     # ファイルを指定：ファイルパス取得
@@ -36,20 +36,18 @@ class ReadFile:
         self._get_filepath()
         # CSV読み込み処理
         # v0.2 複数ファイル対応
-        for f in self.filepath:
-            if f.endswith('.csv'):
-                try:
-                    self._read_csv(f)
+        if self.filepath.endswith('.csv'):
+            try:
+                self._read_csv(self.filepath)
 
-                except FileNotFoundError as e:
-                    # キャンセル/ファイル不明
-                    print(e)
-                    continue
+            except FileNotFoundError as e:
+                # キャンセル/ファイル不明
+                print(e)
 
-                finally:
-                    pass
+            finally:
+                pass
 
-        return self.file_df_lst
+        return self.file_df
 
     # ================================================
     # csv読み込み
@@ -60,16 +58,17 @@ class ReadFile:
         # 列数を明示的に指定
         # syukei.csv : 54
         # col_names = [f'{i:02}' for i in range(54)]  # zerofill;2d
-        col_names = [f'{i}' for i in range(54)]
+        col_names = [f'{i}' for i in range(44)]
         # 指定ファイルをdfとして読み込み
         # 薬剤集計は文字コード:ANSI
-        self.file_df_lst.append(pd.read_csv(input_file, header=None, encoding='ANSI', names=col_names))
+        # ヘッダは飛ばして取得（header=1 指定）
+        self.file_df = pd.read_csv(input_file, header=1, encoding='ANSI', names=col_names)
 
     # ================================================
     # df取得
     # ================================================
     def get_file_df(self):
-        return self.file_df_lst
+        return self.file_df
 
 
 if __name__ == '__main__':
