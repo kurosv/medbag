@@ -20,8 +20,8 @@ def main():
     # ファイル読み込み
     rf = readFile.ReadFile(path)
     df = rf.read_file()
-
-    print(df)
+    if df is None:
+        exit()
 
     # 処方情報分割
     r = rx.ProcRx(df)
