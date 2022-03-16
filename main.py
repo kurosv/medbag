@@ -1,3 +1,4 @@
+import makemb
 import readFile
 import setDir
 import rx
@@ -25,6 +26,11 @@ def main():
 
     # 処方情報処理
     r = rx.ProcRx(df)
+    rx_list = r.get_rxlist()
+
+    # 薬袋ファイル作成
+    mb = makemb.MedBagInfo(path, rx_list)
+
 
 
 if __name__ == '__main__':

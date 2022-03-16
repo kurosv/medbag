@@ -56,3 +56,6 @@ class ProcRx:
 
         # list反映
         self.rx_list = df_list
+
+    def get_rxlist(self):
+        return self.rx_list
