@@ -23,7 +23,7 @@ def main():
     if df is None:
         exit()
 
-    # 処方情報分割
+    # 処方情報処理
     r = rx.ProcRx(df)
 
 
