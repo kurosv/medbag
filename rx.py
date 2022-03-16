@@ -40,6 +40,8 @@ class ProcRx:
 
         # 処理反映
         self.df = d
+        self.df.to_csv('C:\\Users\\iruka\\Desktop\\medbag\\rx.csv',
+                       header=False, index=False)
 
     # 処方情報の分割取得
     #   -> return 処方dfリスト
