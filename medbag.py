@@ -14,7 +14,7 @@ makemb
       yyyymmdd = 処方日
 
 """
-import openpyxl
+import openpyxl as xl
 from openpyxl.styles import Font, Alignment, Border, Side
 
 # 薬袋ファイル設定
@@ -28,7 +28,9 @@ INDEX_ORAL = "[内服薬]"
 INDEX_ORAL_ODO = "[内服薬(一包化)]"
 INDEX_EXT = "[外用薬]"
 INDEX_INJ = "[注射薬]"
-INDEX_ASN = "[屯服薬]"
+INDEX_ASND = "[屯服薬]"
+tag_list = [INDEX_ORAL, INDEX_ORAL_ODO, INDEX_EXT,
+            INDEX_INJ, INDEX_ASND]
 
 # 薬袋種別
 BAG_ORAL = "内　服　薬"
@@ -89,9 +91,12 @@ class MedBag:
         # 初期化、引数処理
         self.dir_path = path
         self.rx_list = df_list
+        # 保存ファイル設定
         self.file_name = FILE_NAME
         self.file_path = self.dir_path
-        self.rx_date = ""
+        self.wb = xl.Workbook()  # wb新規作成 -> 上書き
+        # 処方情報関連
+        self.rx_date = ""  # 処方日（YYYY/mm/dd）
         self.pt_num = len(self.rx_list)
         # フォント設定
         self.set_font = Font(name='メイリオ', size=11)
@@ -100,36 +105,81 @@ class MedBag:
         # 保存ファイル名設定
         self._set_filename()
 
-    # TODO Excelファイル作成
-    #   同名ファイルは上書き
+    # ===============================================
+    # ファイル名設定 & 日付形式変換
+    #   ・ファイル名："薬袋_yyyymmdd.xlsx"
+    #   ・日付変換：_str_to_date(str)
+    # ===============================================
     def _set_filename(self):
         # 日付取得 -> ファイル名設定
         rx = self.rx_list[0]
-        self.rx_date = rx.iat[1, 1]
-        # TODO 日付加工：yyyy.mm.dd?
-        self.file_name += self.rx_date + FILE_EXT
+        r_date = rx.iat[1, 1]
+        self.file_name += r_date + FILE_EXT
         self.file_path += "\\" + self.file_name
 
-    # 処方内容取得
-    def _get_rx_info(self):
-        for rx in self.rx_list:
+        # 日付変換
+        self._str_to_date(r_date)
+
+    # ===============================================
+    # 日付形式変換
+    #   yyyymmdd -> yyyy/mm/dd
+    # ===============================================
+    def _str_to_date(self, d_str):
+        from datetime import datetime as dt
+        adt = dt.strptime(d_str, '%Y%m%d')
+        self.rx_date = adt.strftime('%Y/%m/%d')
+
+    # ===============================================
+    # TODO 処方内容取得
+    # ===============================================
+    def _get_rx_data(self):
+        for idx, rx in enumerate(self.rx_list):
             hp = rx.iat[1, 4]  # 病院名
             pt = rx.iat[0, 4]  # 患者名
+            # シート作成
+            self._create_sheet(pt, idx)
+
             # TODO 処方情報のまとめこみ処理
+            #   【進行中】：データ処理方法かんがえちゅう
             for row in rx:
-                pass
+                # タグをトリガーに処方取得
+                # row[] = tag:3, med/dosage:3, num:4, unit:5
+                rx_flg = False  # 処方情報開始フラグ
+                if row[3] in tag_list:
+                    pass
 
-    # TODO シート作成：患者名 & 薬袋作成
+                elif rx_flg:
+                    pass
+
+                else:
+                    continue
+
+            rx_flg = False
+
+            # 薬袋項目設定
+            bag_date = self.rx_date + "　" + hp
+
+    # ===============================================
+    # TODO シート作成：患者名
+    # ===============================================
+    def _create_sheet(self, pt, idx):
+        # 患者名シートの作成
+        self.wb.create_sheet(title=pt, index=idx)
+
+    # ===============================================
+    # TODO 薬袋作成
+    # ===============================================
     def make_medbag(self):
-        for rx in self.rx_list:
-            pt_name = rx.iat[1, 1]  # （仮）
+        pass
 
+    # ===============================================
     # TODO シート設定
     #   -> 体裁、印刷設定：未テスト
-    def _sheet_setting(self, wb):
+    # ===============================================
+    def _sheet_setting(self):
 
         # シート内設定
-        for ws in wb.worksheets:
+        for ws in self.wb.worksheets:
             # フォント名一括設定
             for row in ws:
                 for cell in row:
@@ -178,7 +228,7 @@ class MedBag:
             # 印刷設定
             self._print_setting(ws)
 
-        wb.save(self.file_path)
+        self.wb.save(self.file_path)
 
     # ===============================================
     # 罫線設定
