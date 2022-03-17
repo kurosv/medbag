@@ -1,4 +1,4 @@
-import makemb
+import medbag
 import readFile
 import setDir
 import rx
@@ -29,7 +29,7 @@ def main():
     rx_list = r.get_rxlist()
 
     # 薬袋ファイル作成
-    mb = makemb.MedBagInfo(path, rx_list)
+    mb = medbag.MedBag(path, rx_list)
 
 
 
